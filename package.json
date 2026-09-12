@@ -1,0 +1,38 @@
+{
+  "name": "hrnet-datatable",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/hrnet-datatable.es.js",
+  "module": "dist/hrnet-datatable.zs.js",
+  "exports": {
+    ".": {
+      "import": "./dist/hrnet-datatable.es.js",
+      "require": "./dist/hrnet-datatable.es.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vite": "^6.0.0"
+  },
+  "keywords": [
+    "react",
+    "datatable",
+    "hrnet"
+  ],
+  "author": "Tiago Lima",
+  "license": "ISC"
+}
