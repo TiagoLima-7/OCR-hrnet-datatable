@@ -1,7 +1,17 @@
 import { useDataTable } from "../hooks/useDataTable";
 
 export default function DataTable({ data = [], columns = [] }) {
-  const { search, setSearch, filtered } = useDataTable(data, columns);
+  const { search, setSearch, sorted, sortKey, sortDirection, handleSort } =
+    useDataTable(data, columns);
+
+  const getArrow = (key) => {
+    if (sortKey !== key) return <i class="fa-solid fa-arrow-down-a-z"></i>;
+    return sortDirection === "asc" ? (
+      <i class="fa-solid fa-arrow-down-a-z"></i>
+    ) : (
+      <i class="fa-solid fa-arrow-down-z-a"></i>
+    );
+  };
 
   return (
     <div className="global-container">
@@ -17,12 +27,19 @@ export default function DataTable({ data = [], columns = [] }) {
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
+              <th
+                key={col.key}
+                onClick={() => handleSort(col.key)}
+                className="sortable-th"
+              >
+                {col.label}
+                <span className="sort-arrow">{getArrow(col.key)}</span>
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {filtered.map((row, i) => (
+          {sorted.map((row, i) => (
             <tr key={i}>
               {columns.map((col) => (
                 <td key={col.key}>{row[col.key]}</td>

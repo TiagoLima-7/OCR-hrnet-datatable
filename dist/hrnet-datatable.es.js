@@ -1,8 +1,30 @@
+import { useState as e } from "react";
 //#region \0rolldown/runtime.js
-var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t.exports), t = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
+var t = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t.exports), n = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
 	if (typeof require < "u") return require.apply(this, arguments);
 	throw Error("Calling `require` for \"" + e + "\" in an environment that doesn't expose the `require` function. See https://rolldown.rs/in-depth/bundling-cjs#require-external-modules for more details.");
-}), n = /* @__PURE__ */ e(((e) => {
+});
+//#endregion
+//#region src/hooks/useDataTable.js
+function r(t, n) {
+	let [r, i] = e(""), [a, o] = e(null), [s, c] = e("asc"), l = (e) => {
+		a === e ? c((e) => e === "asc" ? "desc" : "asc") : (o(e), c("asc"));
+	}, u = t.filter((e) => n.some((t) => String(e[t.key] ?? "").toLowerCase().includes(r.toLowerCase())));
+	return {
+		search: r,
+		setSearch: i,
+		sorted: a ? [...u].sort((e, t) => {
+			let n = String(e[a] ?? "").toLowerCase(), r = String(t[a] ?? "").toLowerCase();
+			return n < r ? s === "asc" ? -1 : 1 : n > r ? s === "asc" ? 1 : -1 : 0;
+		}) : u,
+		sortKey: a,
+		sortDirection: s,
+		handleSort: l
+	};
+}
+//#endregion
+//#region node_modules/react/cjs/react-jsx-runtime.production.js
+var i = /* @__PURE__ */ t(((e) => {
 	var t = Symbol.for("react.transitional.element"), n = Symbol.for("react.fragment");
 	function r(e, n, r) {
 		var i = null;
@@ -17,9 +39,9 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 		};
 	}
 	e.Fragment = n, e.jsx = r, e.jsxs = r;
-})), r = /* @__PURE__ */ e(((e) => {
+})), a = /* @__PURE__ */ t(((e) => {
 	process.env.NODE_ENV !== "production" && (function() {
-		function n(e) {
+		function t(e) {
 			if (e == null) return null;
 			if (typeof e == "function") return e.$$typeof === A ? null : e.displayName || e.name || null;
 			if (typeof e == "string") return e;
@@ -37,13 +59,13 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 				case S: return e.displayName || "Context";
 				case x: return (e._context.displayName || "Context") + ".Consumer";
 				case C:
-					var t = e.render;
-					return e = e.displayName, e ||= (e = t.displayName || t.name || "", e === "" ? "ForwardRef" : "ForwardRef(" + e + ")"), e;
-				case E: return t = e.displayName || null, t === null ? n(e.type) || "Memo" : t;
+					var n = e.render;
+					return e = e.displayName, e ||= (e = n.displayName || n.name || "", e === "" ? "ForwardRef" : "ForwardRef(" + e + ")"), e;
+				case E: return n = e.displayName || null, n === null ? t(e.type) || "Memo" : n;
 				case D:
-					t = e._payload, e = e._init;
+					n = e._payload, e = e._init;
 					try {
-						return n(e(t));
+						return t(e(n));
 					} catch {}
 			}
 			return null;
@@ -68,8 +90,8 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 			if (e === v) return "<>";
 			if (typeof e == "object" && e && e.$$typeof === D) return "<...>";
 			try {
-				var t = n(e);
-				return t ? "<" + t + ">" : "<...>";
+				var n = t(e);
+				return n ? "<" + n + ">" : "<...>";
 			} catch {
 				return "<...>";
 			}
@@ -98,7 +120,7 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 			});
 		}
 		function u() {
-			var e = n(this.type);
+			var e = t(this.type);
 			return I[e] || (I[e] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release.")), e = this.props.ref, e === void 0 ? null : e;
 		}
 		function d(e, t, n, r, i, a) {
@@ -137,8 +159,8 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 				value: a
 			}), Object.freeze && (Object.freeze(e.props), Object.freeze(e)), e;
 		}
-		function f(e, t, r, a, s, u) {
-			var f = t.children;
+		function f(e, n, r, a, s, u) {
+			var f = n.children;
 			if (f !== void 0) {
 				if (a) {
 					if (N(f)) {
@@ -147,15 +169,15 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 					} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
 				} else p(f);
 			}
-			if (M.call(t, "key")) {
-				f = n(e);
-				var m = Object.keys(t).filter(function(e) {
+			if (M.call(n, "key")) {
+				f = t(e);
+				var m = Object.keys(n).filter(function(e) {
 					return e !== "key";
 				});
 				a = 0 < m.length ? "{key: someKey, " + m.join(": ..., ") + ": ...}" : "{key: someKey}", z[f + a] || (m = 0 < m.length ? "{" + m.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", a, f, m, f), z[f + a] = !0);
 			}
-			if (f = null, r !== void 0 && (i(r), f = "" + r), c(t) && (i(t.key), f = "" + t.key), "key" in t) for (var h in r = {}, t) h !== "key" && (r[h] = t[h]);
-			else r = t;
+			if (f = null, r !== void 0 && (i(r), f = "" + r), c(n) && (i(n.key), f = "" + n.key), "key" in n) for (var h in r = {}, n) h !== "key" && (r[h] = n[h]);
+			else r = n;
 			return f && l(r, typeof e == "function" ? e.displayName || e.name || "Unknown" : e), d(e, f, r, o(), s, u);
 		}
 		function p(e) {
@@ -164,7 +186,7 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 		function m(e) {
 			return typeof e == "object" && !!e && e.$$typeof === g;
 		}
-		var h = t("react"), g = Symbol.for("react.transitional.element"), _ = Symbol.for("react.portal"), v = Symbol.for("react.fragment"), y = Symbol.for("react.strict_mode"), b = Symbol.for("react.profiler"), x = Symbol.for("react.consumer"), S = Symbol.for("react.context"), C = Symbol.for("react.forward_ref"), w = Symbol.for("react.suspense"), T = Symbol.for("react.suspense_list"), E = Symbol.for("react.memo"), D = Symbol.for("react.lazy"), O = Symbol.for("react.activity"), k = Symbol.for("react.view_transition"), A = Symbol.for("react.client.reference"), j = h.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, M = Object.prototype.hasOwnProperty, N = Array.isArray, P = console.createTask ? console.createTask : function() {
+		var h = n("react"), g = Symbol.for("react.transitional.element"), _ = Symbol.for("react.portal"), v = Symbol.for("react.fragment"), y = Symbol.for("react.strict_mode"), b = Symbol.for("react.profiler"), x = Symbol.for("react.consumer"), S = Symbol.for("react.context"), C = Symbol.for("react.forward_ref"), w = Symbol.for("react.suspense"), T = Symbol.for("react.suspense_list"), E = Symbol.for("react.memo"), D = Symbol.for("react.lazy"), O = Symbol.for("react.activity"), k = Symbol.for("react.view_transition"), A = Symbol.for("react.client.reference"), j = h.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, M = Object.prototype.hasOwnProperty, N = Array.isArray, P = console.createTask ? console.createTask : function() {
 			return null;
 		};
 		h = { react_stack_bottom_frame: function(e) {
@@ -191,11 +213,30 @@ var e = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t
 			return f(e, t, n, !0, o, r ? P(a(e)) : R);
 		};
 	})();
-})), i = (/* @__PURE__ */ e(((e, t) => {
-	t.exports = process.env.NODE_ENV === "production" ? n() : r();
+})), o = (/* @__PURE__ */ t(((e, t) => {
+	t.exports = process.env.NODE_ENV === "production" ? i() : a();
 })))();
-function a({ data: e = [], columns: t = [] }) {
-	return /* @__PURE__ */ (0, i.jsx)("h1", { children: "DataTable composant" });
+function s({ data: e = [], columns: t = [] }) {
+	let { search: n, setSearch: i, sorted: a, sortKey: s, sortDirection: c, handleSort: l } = r(e, t), u = (e) => s === e ? c === "asc" ? /* @__PURE__ */ (0, o.jsx)("i", { class: "fa-solid fa-arrow-down-a-z" }) : /* @__PURE__ */ (0, o.jsx)("i", { class: "fa-solid fa-arrow-down-z-a" }) : /* @__PURE__ */ (0, o.jsx)("i", { class: "fa-solid fa-arrow-down-a-z" });
+	return /* @__PURE__ */ (0, o.jsxs)("div", {
+		className: "global-container",
+		children: [/* @__PURE__ */ (0, o.jsx)("div", {
+			className: "search-container",
+			children: /* @__PURE__ */ (0, o.jsx)("input", {
+				type: "text",
+				placeholder: "Search...",
+				value: n,
+				onChange: (e) => i(e.target.value)
+			})
+		}), /* @__PURE__ */ (0, o.jsxs)("table", { children: [/* @__PURE__ */ (0, o.jsx)("thead", { children: /* @__PURE__ */ (0, o.jsx)("tr", { children: t.map((e) => /* @__PURE__ */ (0, o.jsxs)("th", {
+			onClick: () => l(e.key),
+			className: "sortable-th",
+			children: [e.label, /* @__PURE__ */ (0, o.jsx)("span", {
+				className: "sort-arrow",
+				children: u(e.key)
+			})]
+		}, e.key)) }) }), /* @__PURE__ */ (0, o.jsx)("tbody", { children: a.map((e, n) => /* @__PURE__ */ (0, o.jsx)("tr", { children: t.map((t) => /* @__PURE__ */ (0, o.jsx)("td", { children: e[t.key] }, t.key)) }, n)) })] })]
+	});
 }
 //#endregion
-export { a as DataTable };
+export { s as DataTable };
