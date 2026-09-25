@@ -1,16 +1,13 @@
 import { useDataTable } from "../hooks/useDataTable";
+import "../styles/datatable.css";
 
 export default function DataTable({ data = [], columns = [] }) {
   const { search, setSearch, sorted, sortKey, sortDirection, handleSort } =
     useDataTable(data, columns);
 
   const getArrow = (key) => {
-    if (sortKey !== key) return <i class="fa-solid fa-arrow-down-a-z"></i>;
-    return sortDirection === "asc" ? (
-      <i class="fa-solid fa-arrow-down-a-z"></i>
-    ) : (
-      <i class="fa-solid fa-arrow-down-z-a"></i>
-    );
+    if (sortKey !== key) return "↕";
+    return sortDirection === "asc" ? "↑" : "↓";
   };
 
   return (
