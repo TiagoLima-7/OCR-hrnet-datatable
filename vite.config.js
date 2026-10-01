@@ -4,6 +4,10 @@ import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+  },
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.js"),
@@ -11,7 +15,7 @@ export default defineConfig({
       formats: ["es"],
       fileName: () => `hrnet-datatable.es.js`,
     },
-    rolldownOptions: {
+    rollupOptions: {
       external: ["react", "react-dom"],
       output: {
         globals: {
