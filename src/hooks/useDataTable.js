@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 
 export function useDataTable(data, columns) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -12,6 +18,11 @@ export function useDataTable(data, columns) {
       setSortKey(key);
       setSortDirection("asc");
     }
+  };
+
+  const handlePageSize = (size) => {
+    setPageSize(Number(size));
+    setCurrentPage(1);
   };
 
   const filtered = data.filter((row) =>
@@ -32,12 +43,26 @@ export function useDataTable(data, columns) {
       })
     : filtered;
 
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const start = (safePage - 1) * pageSize;
+  const paginated = sorted.slice(start, start + pageSize);
+
   return {
     search,
     setSearch,
-    sorted,
+    sorted: paginated,
     sortKey,
     sortDirection,
     handleSort,
+    currentPage: safePage,
+    setCurrentPage,
+    pageSize,
+    handlePageSize,
+    totalPages,
+    totalFiltered: sorted.length,
+    totalEntries: data.length,
+    startEntry: sorted.length === 0 ? 0 : start + 1,
+    endEntry: Math.min(start + pageSize, sorted.length),
   };
 }
