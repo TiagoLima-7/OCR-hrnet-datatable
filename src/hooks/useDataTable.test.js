@@ -16,50 +16,49 @@ const mockData = [
   { firstName: "Eve", lastName: "Adams", department: "Marketing" },
 ];
 
-// ─── État initial ────────────────────────────────────────────────
-describe("état initial", () => {
-  it("retourne toutes les données à la page 1", () => {
+// --- Initial state -----------------------------------------------
+describe("initial state", () => {
+  it("returns all data on page 1", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     expect(result.current.currentPage).toBe(1);
     expect(result.current.totalEntries).toBe(5);
     expect(result.current.totalFiltered).toBe(5);
   });
 
-  it("pageSize par défaut est 10", () => {
+  it("default pageSize is 10", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     expect(result.current.pageSize).toBe(10);
   });
 
-  it("aucun tri actif par défaut", () => {
+  it("no active sort by default", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
-    expect(result.current.sortKey).toBeNull();
-    expect(result.current.sortDirection).toBe("asc");
+    expect(result.current.sorts).toHaveLength(0);
   });
 });
 
-// ─── Filtrage ────────────────────────────────────────────────────
-describe("filtrage", () => {
-  it("filtre les résultats selon la recherche", () => {
+// --- Filtering ---------------------------------------------------
+describe("filtering", () => {
+  it("filters results based on search query", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.setSearch("alice"));
     expect(result.current.totalFiltered).toBe(1);
     expect(result.current.sorted[0].firstName).toBe("Alice");
   });
 
-  it("la recherche est insensible à la casse", () => {
+  it("search is case-insensitive", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.setSearch("MARKETING"));
     expect(result.current.totalFiltered).toBe(2);
   });
 
-  it("retourne 0 résultat si aucune correspondance", () => {
+  it("returns 0 results when no match found", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
-    act(() => result.current.setSearch("xyz_inexistant"));
+    act(() => result.current.setSearch("xyz_not_found"));
     expect(result.current.totalFiltered).toBe(0);
     expect(result.current.sorted).toHaveLength(0);
   });
 
-  it("remet currentPage à 1 quand la recherche change", () => {
+  it("resets currentPage to 1 when search changes", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.setCurrentPage(2));
     act(() => result.current.setSearch("alice"));
@@ -67,34 +66,85 @@ describe("filtrage", () => {
   });
 });
 
-// ─── Tri ─────────────────────────────────────────────────────────
-describe("tri", () => {
-  it("trie par ordre croissant au premier clic", () => {
+// --- Sorting -----------------------------------------------------
+describe("sorting", () => {
+  it("sorts ascending on first click", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handleSort("firstName"));
-    expect(result.current.sortKey).toBe("firstName");
-    expect(result.current.sortDirection).toBe("asc");
+    expect(result.current.sorts[0]).toEqual({
+      key: "firstName",
+      direction: "asc",
+    });
     expect(result.current.sorted[0].firstName).toBe("Alice");
   });
 
-  it("inverse le tri au deuxième clic sur la même colonne", () => {
+  it("sorts descending on second click on the same column", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handleSort("firstName"));
     act(() => result.current.handleSort("firstName"));
-    expect(result.current.sortDirection).toBe("desc");
+    expect(result.current.sorts[0]).toEqual({
+      key: "firstName",
+      direction: "desc",
+    });
     expect(result.current.sorted[0].firstName).toBe("Eve");
   });
 
-  it("remet le tri à asc lors du changement de colonne", () => {
+  it("removes sort on third click", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handleSort("firstName"));
-    act(() => result.current.handleSort("firstName")); // desc
-    act(() => result.current.handleSort("lastName")); // nouvelle colonne
-    expect(result.current.sortDirection).toBe("asc");
-    expect(result.current.sortKey).toBe("lastName");
+    act(() => result.current.handleSort("firstName"));
+    act(() => result.current.handleSort("firstName"));
+    expect(result.current.sorts).toHaveLength(0);
   });
 
-  it("remet currentPage à 1 lors du tri", () => {
+  it("accumulates multiple sorts in click order", () => {
+    const { result } = renderHook(() => useDataTable(mockData, columns));
+    act(() => result.current.handleSort("department"));
+    act(() => result.current.handleSort("firstName"));
+    expect(result.current.sorts).toHaveLength(2);
+    expect(result.current.sorts[0].key).toBe("department");
+    expect(result.current.sorts[1].key).toBe("firstName");
+  });
+
+  it("sorts by multiple columns correctly", () => {
+    const { result } = renderHook(() => useDataTable(mockData, columns));
+    act(() => result.current.handleSort("department"));
+    act(() => result.current.handleSort("firstName"));
+    expect(result.current.sorted[0]).toMatchObject({
+      department: "Engineering",
+      firstName: "Alice",
+    });
+    expect(result.current.sorted[1]).toMatchObject({
+      department: "Engineering",
+      firstName: "Charlie",
+    });
+    expect(result.current.sorted[2]).toMatchObject({ department: "HR" });
+  });
+
+  it("changing direction of one sort does not affect other sorts", () => {
+    const { result } = renderHook(() => useDataTable(mockData, columns));
+    act(() => result.current.handleSort("department"));
+    act(() => result.current.handleSort("firstName"));
+    act(() => result.current.handleSort("department"));
+    expect(result.current.sorts[0]).toEqual({
+      key: "department",
+      direction: "desc",
+    });
+    expect(result.current.sorts[1]).toEqual({
+      key: "firstName",
+      direction: "asc",
+    });
+  });
+
+  it("clearSorts removes all active sorts", () => {
+    const { result } = renderHook(() => useDataTable(mockData, columns));
+    act(() => result.current.handleSort("department"));
+    act(() => result.current.handleSort("firstName"));
+    act(() => result.current.clearSorts());
+    expect(result.current.sorts).toHaveLength(0);
+  });
+
+  it("resets currentPage to 1 when sorting", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.setCurrentPage(2));
     act(() => result.current.handleSort("firstName"));
@@ -102,23 +152,23 @@ describe("tri", () => {
   });
 });
 
-// ─── Pagination ──────────────────────────────────────────────────
+// --- Pagination --------------------------------------------------
 describe("pagination", () => {
-  it("calcule totalPages correctement", () => {
+  it("calculates totalPages correctly", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handlePageSize(2));
-    expect(result.current.totalPages).toBe(3); // 5 entrées / 2 = 3 pages
+    expect(result.current.totalPages).toBe(3);
   });
 
-  it("retourne seulement les entrées de la page courante", () => {
+  it("returns only the entries for the current page", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handlePageSize(2));
     expect(result.current.sorted).toHaveLength(2);
     act(() => result.current.setCurrentPage(3));
-    expect(result.current.sorted).toHaveLength(1); // dernière page : 1 entrée
+    expect(result.current.sorted).toHaveLength(1);
   });
 
-  it("startEntry et endEntry sont corrects", () => {
+  it("startEntry and endEntry are correct", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handlePageSize(2));
     expect(result.current.startEntry).toBe(1);
@@ -128,7 +178,7 @@ describe("pagination", () => {
     expect(result.current.endEntry).toBe(4);
   });
 
-  it("handlePageSize remet currentPage à 1", () => {
+  it("handlePageSize resets currentPage to 1", () => {
     const { result } = renderHook(() => useDataTable(mockData, columns));
     act(() => result.current.handlePageSize(2));
     act(() => result.current.setCurrentPage(3));
@@ -136,7 +186,7 @@ describe("pagination", () => {
     expect(result.current.currentPage).toBe(1);
   });
 
-  it("gère les données vides sans erreur", () => {
+  it("handles empty data without error", () => {
     const { result } = renderHook(() => useDataTable([], columns));
     expect(result.current.totalPages).toBe(1);
     expect(result.current.startEntry).toBe(0);
