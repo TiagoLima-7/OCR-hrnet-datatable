@@ -6,9 +6,9 @@ export default function DataTable({ data = [], columns = [] }) {
     search,
     setSearch,
     sorted,
-    sortKey,
-    sortDirection,
+    sorts,
     handleSort,
+    clearSorts,
     currentPage,
     setCurrentPage,
     pageSize,
@@ -19,11 +19,6 @@ export default function DataTable({ data = [], columns = [] }) {
     startEntry,
     endEntry,
   } = useDataTable(data, columns);
-
-  const getArrow = (key) => {
-    if (sortKey !== key) return "↕";
-    return sortDirection === "asc" ? "↑" : "↓";
-  };
 
   const getPageNumbers = () => {
     if (totalPages <= 7) {
@@ -45,10 +40,12 @@ export default function DataTable({ data = [], columns = [] }) {
 
   return (
     <div className="global-container">
+      {/* -- Contrôles supérieurs -- */}
       <div className="datatable-controls">
         <div className="page-size-control">
           <label htmlFor="page-size">Show</label>{" "}
           <select
+            data-testid="select-page-size"
             id="page-size"
             value={pageSize}
             onChange={(e) => handlePageSize(e.target.value)}
@@ -63,7 +60,9 @@ export default function DataTable({ data = [], columns = [] }) {
         </div>
         <div className="search-container">
           <input
+            data-testid="input-search"
             type="text"
+            id="input-search"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -71,32 +70,82 @@ export default function DataTable({ data = [], columns = [] }) {
         </div>
       </div>
 
+      {/* -- Chips de tri (mode cartes mobile uniquement) -- */}
+      <div className="sort-controls">
+        <span className="sort-controls-label">Sort by:</span>
+        {columns.map((col) => {
+          const sortEntry = sorts.find((s) => s.key === col.key);
+          const sortIndex = sorts.findIndex((s) => s.key === col.key) + 1;
+          return (
+            <button
+              key={col.key}
+              className={`sort-chip${sortEntry ? " sort-chip--active" : ""}`}
+              onClick={() => handleSort(col.key)}
+            >
+              {col.label}
+              {sortEntry ? (sortEntry.direction === "asc" ? " ↑" : " ↓") : ""}
+              {sortEntry && sorts.length > 1 && <sup>{sortIndex}</sup>}
+            </button>
+          );
+        })}
+        {sorts.length > 0 && (
+          <button className="sort-chip sort-chip--clear" onClick={clearSorts}>
+            ✕ Clear
+          </button>
+        )}
+      </div>
+
+      {/* -- Table -- */}
       <table>
         <thead>
           <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                onClick={() => handleSort(col.key)}
-                className={`sortable-th${sortKey === col.key ? " active-sort" : ""}`}
-              >
-                {col.label}
-                <span className="sort-arrow">{getArrow(col.key)}</span>
-              </th>
-            ))}
+            {columns.map((col) => {
+              const sortEntry = sorts.find((s) => s.key === col.key);
+              const sortIndex = sorts.findIndex((s) => s.key === col.key) + 1;
+              return (
+                <th
+                  key={col.key}
+                  className={`sortable-th${sortEntry ? " active-sort" : ""}`}
+                  onClick={() => handleSort(col.key)}
+                >
+                  {col.label}
+                  <span className="sort-arrow">
+                    {sortEntry ? (
+                      <>
+                        {sortEntry.direction === "asc" ? " ↑" : " ↓"}
+                        {sorts.length > 1 && <sup>{sortIndex}</sup>}
+                      </>
+                    ) : (
+                      " ↕"
+                    )}
+                  </span>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
-          {sorted.map((row, i) => (
-            <tr key={i}>
-              {columns.map((col) => (
-                <td key={col.key}>{row[col.key]}</td>
-              ))}
+          {sorted.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} style={{ textAlign: "center" }}>
+                No entries found
+              </td>
             </tr>
-          ))}
+          ) : (
+            sorted.map((row, i) => (
+              <tr key={i}>
+                {columns.map((col) => (
+                  <td key={col.key} data-label={col.label}>
+                    {row[col.key]}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
+      {/* -- Pied -- */}
       <div className="datatable-footer">
         <div className="datatable-info">
           {totalFiltered === 0
@@ -109,6 +158,7 @@ export default function DataTable({ data = [], columns = [] }) {
         </div>
         <div className="datatable-pagination">
           <button
+            data-testid="btn-previous"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
           >
@@ -130,6 +180,7 @@ export default function DataTable({ data = [], columns = [] }) {
             ),
           )}
           <button
+            data-testid="btn-next"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
           >
