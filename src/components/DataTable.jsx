@@ -58,6 +58,11 @@ export default function DataTable({ data = [], columns = [] }) {
           </select>{" "}
           entries
         </div>
+        {sorts.length > 0 && (
+          <button className="clear-sorts-btn" onClick={clearSorts}>
+            ✕ Clear sorts
+          </button>
+        )}
         <div className="search-container">
           <input
             data-testid="input-search"
@@ -88,11 +93,6 @@ export default function DataTable({ data = [], columns = [] }) {
             </button>
           );
         })}
-        {sorts.length > 0 && (
-          <button className="sort-chip sort-chip--clear" onClick={clearSorts}>
-            ✕ Clear
-          </button>
-        )}
       </div>
 
       {/* -- Table -- */}
