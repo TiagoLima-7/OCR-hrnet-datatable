@@ -150,6 +150,23 @@ describe("sorting", () => {
     act(() => result.current.handleSort("firstName"));
     expect(result.current.currentPage).toBe(1);
   });
+
+  it("sorts date columns chronologically (type: 'date')", () => {
+    const dateCols = [
+      { key: "name", label: "Name" },
+      { key: "startDate", label: "Start Date", type: "date" },
+    ];
+    const dateData = [
+      { name: "Alice", startDate: "03/15/2020" },
+      { name: "Bob", startDate: "11/01/2019" },
+      { name: "Carol", startDate: "01/30/2021" },
+    ];
+    const { result } = renderHook(() => useDataTable(dateData, dateCols));
+    act(() => result.current.handleSort("startDate"));
+    expect(result.current.sorted[0].name).toBe("Bob"); // 2019
+    expect(result.current.sorted[1].name).toBe("Alice"); // 2020
+    expect(result.current.sorted[2].name).toBe("Carol"); // 2021
+  });
 });
 
 // --- Pagination --------------------------------------------------

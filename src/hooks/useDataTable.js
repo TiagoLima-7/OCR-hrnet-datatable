@@ -48,16 +48,34 @@ export function useDataTable(data, columns) {
 
   const sortedFiltered = useMemo(() => {
     if (sorts.length === 0) return filtered;
+
+    const colTypeMap = Object.fromEntries(
+      columns.map((c) => [c.key, c.type ?? "string"]),
+    );
+
     return [...filtered].sort((a, b) => {
       for (const { key, direction } of sorts) {
-        const aVal = String(a[key] ?? "").toLowerCase();
-        const bVal = String(b[key] ?? "").toLowerCase();
-        if (aVal < bVal) return direction === "asc" ? -1 : 1;
-        if (aVal > bVal) return direction === "asc" ? 1 : -1;
+        const aRaw = a[key] ?? "";
+        const bRaw = b[key] ?? "";
+
+        let cmp;
+        if (colTypeMap[key] === "date") {
+          const parse = (val) => {
+            const [m, d, y] = String(val).split("/");
+            return new Date(Number(y), Number(m) - 1, Number(d)).getTime();
+          };
+          cmp = parse(aRaw) - parse(bRaw);
+        } else {
+          const aVal = String(aRaw).toLowerCase();
+          const bVal = String(bRaw).toLowerCase();
+          cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        }
+
+        if (cmp !== 0) return direction === "asc" ? cmp : -cmp;
       }
       return 0;
     });
-  }, [filtered, sorts]);
+  }, [filtered, sorts, columns]);
 
   const totalEntries = data.length;
   const totalFiltered = sortedFiltered.length;
