@@ -58,20 +58,20 @@ export function useDataTable(data, columns) {
         const aRaw = a[key] ?? "";
         const bRaw = b[key] ?? "";
 
-        let cmp;
+        let compare;
         if (colTypeMap[key] === "date") {
           const parse = (val) => {
             const [m, d, y] = String(val).split("/");
             return new Date(Number(y), Number(m) - 1, Number(d)).getTime();
           };
-          cmp = parse(aRaw) - parse(bRaw);
+          compare = parse(aRaw) - parse(bRaw);
         } else {
           const aVal = String(aRaw).toLowerCase();
           const bVal = String(bRaw).toLowerCase();
-          cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+          compare = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
         }
 
-        if (cmp !== 0) return direction === "asc" ? cmp : -cmp;
+        if (compare !== 0) return direction === "asc" ? compare : -compare;
       }
       return 0;
     });
