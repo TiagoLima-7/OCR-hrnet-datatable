@@ -1,17 +1,20 @@
 {
-  "name": "hrnet-datatable",
-  "version": "1.0.0",
-  "description": "",
+  "name": "hrnet-datatable-tiago",
+  "version": "1.0.2",
+  "description": "React datatable component with search, multi-sort and pagination",
   "main": "dist/hrnet-datatable.es.js",
   "module": "dist/hrnet-datatable.es.js",
+  "style": "dist/hrnet-datatable.css",
   "exports": {
     ".": {
       "import": "./dist/hrnet-datatable.es.js",
       "require": "./dist/hrnet-datatable.es.js"
-    }
+    },
+    "./dist/hrnet-datatable.css": "./dist/hrnet-datatable.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "dev": "vite",

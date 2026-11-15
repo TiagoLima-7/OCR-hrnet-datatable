@@ -22,6 +22,7 @@ export default defineConfig({
           react: "React",
           "react-dom": "ReactDom",
         },
+        assetFileNames: "hrnet-datatable.css",
       },
     },
   },
